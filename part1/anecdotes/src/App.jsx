@@ -48,8 +48,14 @@ function App() {
     return (
       <div>
         <h1>Anecdote with most voted</h1>
-        <p>{anecdotes[mostVotedIndex]}</p>
-        <p>has {votes[mostVotedIndex]} votes </p>
+        {mostVoted ? (
+          <div>
+            <p>{anecdotes[mostVotedIndex]}</p>
+            <p>has {votes[mostVotedIndex]} votes </p>
+          </div>
+        ) : (
+          <div></div>
+        )}
       </div>
     );
   }

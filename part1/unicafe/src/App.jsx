@@ -37,8 +37,8 @@ function App() {
               <StatisticLine text='neutal' value={neutral} />
               <StatisticLine text='bad' value={bad} />
               <StatisticLine text='all' value={totalFeedback} />
-              <StatisticLine text='avarage' value={avarage} />
-              <StatisticLine text='positif' value={positif} />
+              <StatisticLine text='avarage' value={avarage.toFixed(2)} />
+              <StatisticLine text='positif' value={positif.toFixed(1)} />
             </tbody>
           </table>
         )}
@@ -50,7 +50,7 @@ function App() {
     return (
       <tr>
         <td>{text}</td>
-        <td>{value} </td>
+        <td>{text === 'positif' ? `${value}%` : value} </td>
       </tr>
     );
   }

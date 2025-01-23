@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import phonebookServices from '../services/phonebook';
 
 export default function PersonForm({ persons, setPersons }) {
   const [formPhoneBook, setFormPhonebook] = useState({
@@ -15,26 +16,42 @@ export default function PersonForm({ persons, setPersons }) {
     }));
   };
 
-  const addHandler = (e) => {
+  const addHandler = async (e) => {
     e.preventDefault();
 
     const newPerson = {
       ...formPhoneBook,
-      id: persons.length + 1,
+      id: (persons.length + 1).toString(),
     };
 
     const existPerson = persons.find(
       (person) => person.name.toLowerCase() === formPhoneBook.name.toLocaleLowerCase()
-    )?.name;
+    );
 
     if (existPerson) {
-      alert(`${existPerson} is already added to phonebook`);
+      const confrimReplace = window.confirm(
+        `${existPerson.name} is already added to phonebook, replace the old number with a new one ?`
+      );
+
+      if (confrimReplace) {
+        const response = await phonebookServices.updatePerson(existPerson.id, {
+          ...existPerson,
+          number: formPhoneBook.number,
+        });
+
+        setPersons(persons.map((person) => (person.id === response.id ? response : person)));
+      }
     } else {
-      setPersons([...persons, newPerson]);
-      setFormPhonebook({
-        name: '',
-        number: '',
-      });
+      try {
+        await phonebookServices.create(newPerson);
+        setPersons([...persons, newPerson]);
+        setFormPhonebook({
+          name: '',
+          number: '',
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 

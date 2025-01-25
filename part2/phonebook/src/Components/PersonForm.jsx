@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import phonebookServices from '../services/phonebook';
 
-export default function PersonForm({ persons, setPersons }) {
+export default function PersonForm({ persons, setPersons, setNotification }) {
   const [formPhoneBook, setFormPhonebook] = useState({
     name: '',
     number: '',
@@ -21,7 +21,7 @@ export default function PersonForm({ persons, setPersons }) {
 
     const newPerson = {
       ...formPhoneBook,
-      id: (persons.length + 1).toString(),
+      id: Math.floor(Math.random() * 100000).toString(),
     };
 
     const existPerson = persons.find(
@@ -49,6 +49,16 @@ export default function PersonForm({ persons, setPersons }) {
           name: '',
           number: '',
         });
+
+        setNotification({
+          message: `Added ${newPerson.name}`,
+        });
+
+        setTimeout(() => {
+          setNotification({
+            message: '',
+          });
+        }, 3000);
       } catch (error) {
         console.log(error);
       }

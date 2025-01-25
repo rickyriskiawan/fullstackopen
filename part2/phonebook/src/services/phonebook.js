@@ -21,11 +21,10 @@ async function create(newObject) {
 
 async function deletePerson(id) {
   try {
-    const response = axios.delete(`${URL}/${id}`);
-    console.log(response);
-    return response;
+    const response = await axios.delete(`${URL}/${id}`);
+    return response.data;
   } catch (error) {
-    console.log(error.message);
+    return error.response;
   }
 }
 

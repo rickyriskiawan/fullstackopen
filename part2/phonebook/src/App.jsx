@@ -3,9 +3,14 @@ import PersonForm from './Components/PersonForm';
 import Persons from './Components/Persons';
 import Filter from './Components/Filter';
 import phoneBookServices from './services/phonebook';
+import Notification from './Components/Notification';
 
 function App() {
   const [persons, setPersons] = useState([]);
+  const [notification, setNotification] = useState({
+    message: '',
+    error: false,
+  });
 
   useEffect(() => {
     const getData = async () => {
@@ -33,12 +38,17 @@ function App() {
     <div>
       <h2>Phonebook</h2>
       <Filter setFilter={setFilter} />
+      <Notification notifInfo={notification} />
 
       <h3>Add a new</h3>
-      <PersonForm persons={persons} setPersons={setPersons} />
+      <PersonForm persons={persons} setPersons={setPersons} setNotification={setNotification} />
 
       <h3>Numbers</h3>
-      <Persons persons={filteredPersons} setPersons={setPersons} />
+      <Persons
+        persons={filteredPersons}
+        setPersons={setPersons}
+        setNotification={setNotification}
+      />
     </div>
   );
 }

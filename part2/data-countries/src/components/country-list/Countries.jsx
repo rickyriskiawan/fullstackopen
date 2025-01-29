@@ -5,8 +5,6 @@ export default function Countries({ countries, setCountries }) {
     return null;
   }
 
-  console.log(countries);
-
   if (countries.length > 10) {
     return (
       <div>

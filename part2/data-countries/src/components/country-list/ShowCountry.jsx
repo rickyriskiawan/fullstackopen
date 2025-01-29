@@ -2,7 +2,11 @@ import WeatherCountry from '../WeatherCountry';
 
 export default function ShowCountry({ country }) {
   if (!country) {
-    return null;
+    return (
+      <div>
+        <p>Countries not Found</p>
+      </div>
+    );
   }
   const { name, capital, area, flags } = country;
   const languages = Object.values(country.languages);

@@ -1,4 +1,9 @@
+import WeatherCountry from '../WeatherCountry';
+
 export default function ShowCountry({ country }) {
+  if (!country) {
+    return null;
+  }
   const { name, capital, area, flags } = country;
   const languages = Object.values(country.languages);
   return (
@@ -22,6 +27,8 @@ export default function ShowCountry({ country }) {
       <div>
         <img src={flags.png} alt={flags.alt} />
       </div>
+
+      <WeatherCountry country={capital} />
     </div>
   );
 }

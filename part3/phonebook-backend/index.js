@@ -60,19 +60,32 @@ app.delete('/api/persons/:id', (req, res) => {
 });
 
 app.post('/api/persons', (req, res) => {
-  const body = req.body;
-  console.log(body);
+  const name = req.body.name;
+  const number = req.body.number;
+
+  if (!name || !number) {
+    return res.status(400).json({
+      error: !name ? 'Name cant be empty' : 'Number cant be empty',
+    });
+  }
+
+  const existedPerson = persons.find((person) => person.name.toLowerCase() === name.toLowerCase());
+
+  if (existedPerson) {
+    return res.status(400).json({
+      error: 'Name must be unique',
+    });
+  }
 
   const id = Math.floor(Math.random() * 1000);
-
   const newPerson = {
-    id: id,
-    name: body.name,
-    number: body.number,
+    id: id.toString(),
+    name: name,
+    number: number,
   };
   persons = persons.concat(newPerson);
 
-  res.json(body);
+  res.json(newPerson);
 });
 
 app.listen(PORT, () => {

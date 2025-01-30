@@ -25,6 +25,8 @@ let persons = [
   },
 ];
 
+app.use(express.json());
+
 app.get('/', (req, res) => {
   res.send('<h1>Hello World</h1>');
 });
@@ -63,12 +65,12 @@ app.post('/api/persons', (req, res) => {
 
   const id = Math.floor(Math.random() * 1000);
 
-  // const newPerson = {
-  //   id: id,
-  //   name: body.name,
-  //   number: body.number,
-  // };
-  // persons.concat(newPerson);
+  const newPerson = {
+    id: id,
+    name: body.name,
+    number: body.number,
+  };
+  persons = persons.concat(newPerson);
 
   res.json(body);
 });

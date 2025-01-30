@@ -1,4 +1,5 @@
 const express = require('express');
+const morgan = require('morgan');
 const app = express();
 const PORT = 3001;
 
@@ -26,6 +27,10 @@ let persons = [
 ];
 
 app.use(express.json());
+
+morgan.token('req-body', function (req) {
+  return JSON.stringify(req.body);
+});
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello World</h1>');
@@ -87,6 +92,8 @@ app.post('/api/persons', (req, res) => {
 
   res.json(newPerson);
 });
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
 
 app.listen(PORT, () => {
   console.log('Server Running On Port 3001');

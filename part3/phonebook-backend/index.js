@@ -1,4 +1,6 @@
 const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
 const app = express();
 const PORT = 3001;
 
@@ -25,11 +27,16 @@ let persons = [
   },
 ];
 
+app.use(cors());
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello World</h1>');
+morgan.token('req-body', function (req) {
+  return JSON.stringify(req.body);
 });
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
+
+app.use(express.static('dist'));
 
 app.get('/api/persons', (req, res) => {
   res.json(persons);
@@ -60,19 +67,32 @@ app.delete('/api/persons/:id', (req, res) => {
 });
 
 app.post('/api/persons', (req, res) => {
-  const body = req.body;
-  console.log(body);
+  const name = req.body.name;
+  const number = req.body.number;
+
+  if (!name || !number) {
+    return res.status(400).json({
+      error: !name ? 'Name cant be empty' : 'Number cant be empty',
+    });
+  }
+
+  const existedPerson = persons.find((person) => person.name.toLowerCase() === name.toLowerCase());
+
+  if (existedPerson) {
+    return res.status(400).json({
+      error: 'Name must be unique',
+    });
+  }
 
   const id = Math.floor(Math.random() * 1000);
-
   const newPerson = {
-    id: id,
-    name: body.name,
-    number: body.number,
+    id: id.toString(),
+    name: name,
+    number: number,
   };
   persons = persons.concat(newPerson);
 
-  res.json(body);
+  res.json(newPerson);
 });
 
 app.listen(PORT, () => {

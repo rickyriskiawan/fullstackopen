@@ -36,7 +36,7 @@ morgan.token('req-body', function (req) {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-body'));
 
-app.use(express.static('dist'));
+app.use('/', express.static(path.join(__dirname, 'dist')));
 
 app.get('/api/persons', (req, res) => {
   res.json(persons);

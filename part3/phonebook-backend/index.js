@@ -41,22 +41,22 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :r
 
 app.use('/', express.static(path.join(__dirname, 'dist')));
 
-app.get('/api/persons', async (req, res) => {
+app.get('/api/persons', async (req, res, next) => {
   try {
     const people = await People.find({});
     res.status(200).json(people);
   } catch (error) {
-    console.log(error);
+    next(error);
   }
 });
 
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, next) => {
   const date = new Date();
   const personsLength = persons.length;
   res.send(`<p>phonebook has info ${personsLength} people </p> <br> ${date}`);
 });
 
-app.get('/api/persons/:id', async (req, res) => {
+app.get('/api/persons/:id', async (req, res, next) => {
   try {
     const id = req.params.id;
     const person = await People.findById(id);
@@ -69,20 +69,30 @@ app.get('/api/persons/:id', async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(404).json({
-      message: error.message,
-    });
+    next(error);
   }
 });
 
-app.delete('/api/persons/:id', (req, res) => {
-  const id = req.params.id;
-  persons = persons.filter((person) => person.id !== id);
+app.delete('/api/persons/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const deletedPerson = await People.findByIdAndDelete(id);
 
-  res.status(204).end();
+    if (!deletedPerson) {
+      res.status(404).json({
+        message: 'Id not found',
+      });
+    }
+    res.status(200).json({
+      status: 'Delete successfull',
+      data: deletedPerson,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.post('/api/persons', async (req, res) => {
+app.post('/api/persons', async (req, res, next) => {
   try {
     const name = req.body.name;
     const number = req.body.number;
@@ -110,6 +120,19 @@ app.post('/api/persons', async (req, res) => {
     });
   }
 });
+
+const errorHandling = (error, req, res, next) => {
+  const errorName = error.name;
+  console.log(errorName);
+
+  if (errorName === 'CastError') {
+    return res.status(400).json({
+      message: 'invalid id',
+    });
+  }
+};
+
+app.use(errorHandling);
 
 app.listen(PORT, () => {
   console.log('Server Running On Port 3001');

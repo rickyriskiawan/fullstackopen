@@ -27,7 +27,7 @@ function App() {
 
   const [filter, setFilter] = useState('');
 
-  const filteredPersons = persons.filter((person) => {
+  const filteredPersons = persons?.filter((person) => {
     return (
       person.name.toLocaleLowerCase().includes(filter) ||
       person.number.replace('-', '').includes(filter)

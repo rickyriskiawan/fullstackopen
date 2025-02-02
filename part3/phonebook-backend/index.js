@@ -28,6 +28,8 @@ let persons = [
   },
 ];
 
+const People = require('./models/people');
+
 app.use(cors());
 app.use(express.json());
 
@@ -39,62 +41,98 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :r
 
 app.use('/', express.static(path.join(__dirname, 'dist')));
 
-app.get('/api/persons', (req, res) => {
-  res.json(persons);
+app.get('/api/persons', async (req, res, next) => {
+  try {
+    const people = await People.find({});
+    res.status(200).json(people);
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.get('/info', (req, res) => {
+app.get('/info', (req, res, next) => {
   const date = new Date();
   const personsLength = persons.length;
   res.send(`<p>phonebook has info ${personsLength} people </p> <br> ${date}`);
 });
 
-app.get('/api/persons/:id', (req, res) => {
-  const id = req.params.id;
-  const person = persons.find((person) => person.id === id);
+app.get('/api/persons/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const person = await People.findById(id);
 
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).end();
+    if (person) {
+      res.status(200).json(person);
+    } else {
+      res.status(404).json({
+        message: 'Data not found',
+      });
+    }
+  } catch (error) {
+    next(error);
   }
 });
 
-app.delete('/api/persons/:id', (req, res) => {
-  const id = req.params.id;
-  persons = persons.filter((person) => person.id !== id);
+app.delete('/api/persons/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const deletedPerson = await People.findByIdAndDelete(id);
 
-  res.status(204).end();
+    if (!deletedPerson) {
+      res.status(404).json({
+        message: 'Id not found',
+      });
+    }
+    res.status(200).json({
+      status: 'Delete successfull',
+      data: deletedPerson,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.post('/api/persons', (req, res) => {
-  const name = req.body.name;
-  const number = req.body.number;
+app.post('/api/persons', async (req, res, next) => {
+  try {
+    const name = req.body.name;
+    const number = req.body.number;
 
-  if (!name || !number) {
-    return res.status(400).json({
-      error: !name ? 'Name cant be empty' : 'Number cant be empty',
+    if (!name || !number) {
+      return res.status(400).json({
+        error: !name ? 'Name cant be empty' : 'Number cant be empty',
+      });
+    }
+
+    const newPerson = new People({
+      name: name,
+      number: number,
+    });
+
+    const person = await newPerson.save();
+
+    res.status(201).json({
+      message: 'Person Saved',
+      data: person,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Server Error',
     });
   }
+});
 
-  const existedPerson = persons.find((person) => person.name.toLowerCase() === name.toLowerCase());
+const errorHandling = (error, req, res, next) => {
+  const errorName = error.name;
+  console.log(errorName);
 
-  if (existedPerson) {
+  if (errorName === 'CastError') {
     return res.status(400).json({
-      error: 'Name must be unique',
+      message: 'invalid id',
     });
   }
+};
 
-  const id = Math.floor(Math.random() * 1000);
-  const newPerson = {
-    id: id.toString(),
-    name: name,
-    number: number,
-  };
-  persons = persons.concat(newPerson);
-
-  res.json(newPerson);
-});
+app.use(errorHandling);
 
 app.listen(PORT, () => {
   console.log('Server Running On Port 3001');

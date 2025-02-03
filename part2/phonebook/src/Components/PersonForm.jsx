@@ -18,10 +18,6 @@ export default function PersonForm({ persons, setPersons, setNotification }) {
   const addHandler = async (e) => {
     e.preventDefault();
 
-    const existPerson = persons.find(
-      (person) => person.name.toLowerCase() === formPhoneBook.name.toLocaleLowerCase()
-    );
-
     if (!formPhoneBook.name || !formPhoneBook.number) {
       setNotification({
         message: `${!formPhoneBook.name ? 'Name' : 'Number'} cannot be empty`,
@@ -37,6 +33,10 @@ export default function PersonForm({ persons, setPersons, setNotification }) {
       return;
     }
 
+    const existPerson = persons.find(
+      (person) => person.name.toLowerCase() === formPhoneBook.name.toLocaleLowerCase()
+    );
+
     if (existPerson) {
       const confrimReplace = window.confirm(
         `${existPerson.name} is already added to phonebook, replace the old number with a new one ?`
@@ -48,12 +48,32 @@ export default function PersonForm({ persons, setPersons, setNotification }) {
           number: formPhoneBook.number,
         });
 
-        setPersons(persons.map((person) => (person.id === response.id ? response : person)));
+        setPersons(
+          persons.map((person) => (person.id === response.data.id ? response.data : person))
+        );
+
+        setNotification({
+          message: `Updated ${response.data.name}'s number`,
+          error: false,
+        });
+
+        setTimeout(() => {
+          setNotification({
+            message: '',
+          });
+        }, 3000);
+
+        setFormPhonebook({
+          name: '',
+          number: '',
+        });
       }
     } else {
       try {
-        await phonebookServices.create(formPhoneBook);
-        setPersons([...persons, formPhoneBook]);
+        const response = await phonebookServices.create(formPhoneBook);
+        console.log(response);
+
+        setPersons([...persons, response.data]);
         setFormPhonebook({
           name: '',
           number: '',

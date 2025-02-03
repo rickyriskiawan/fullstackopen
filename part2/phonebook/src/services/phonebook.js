@@ -14,7 +14,7 @@ async function getAll() {
 async function create(newObject) {
   try {
     const response = await axios.post(URL, newObject);
-    return response;
+    return response.data;
   } catch (error) {
     console.log(error);
   }
@@ -32,7 +32,6 @@ async function deletePerson(id) {
 async function updatePerson(id, updatedObject) {
   try {
     const response = await axios.put(`${URL}/${id}`, updatedObject);
-    console.log(response);
     return response.data;
   } catch (error) {
     console.log(error);

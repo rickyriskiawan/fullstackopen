@@ -7,6 +7,7 @@ import Notification from './Components/Notification';
 
 function App() {
   const [persons, setPersons] = useState([]);
+
   const [notification, setNotification] = useState({
     message: '',
     error: false,

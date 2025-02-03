@@ -121,6 +121,19 @@ app.post('/api/persons', async (req, res, next) => {
   }
 });
 
+app.put('/api/persons/:id', async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const number = req.body.number;
+    const updatedPerson = await People.findByIdAndUpdate(id, { number: number }, { new: true });
+
+    res.status(200).json({
+      message: 'Updated successfull',
+      data: updatedPerson,
+    });
+  } catch (error) {}
+});
+
 const errorHandling = (error, req, res, next) => {
   const errorName = error.name;
   console.log(errorName);

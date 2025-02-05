@@ -50,10 +50,10 @@ app.get('/api/persons', async (req, res, next) => {
   }
 });
 
-app.get('/info', (req, res, next) => {
+app.get('/info', async (req, res, next) => {
   const date = new Date();
-  const personsLength = persons.length;
-  res.send(`<p>phonebook has info ${personsLength} people </p> <br> ${date}`);
+  const people = await People.find({});
+  res.send(`<p>phonebook has info ${people.length} people </p> <br> ${date}`);
 });
 
 app.get('/api/persons/:id', async (req, res, next) => {

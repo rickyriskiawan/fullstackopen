@@ -115,9 +115,7 @@ app.post('/api/persons', async (req, res, next) => {
       data: person,
     });
   } catch (error) {
-    res.status(500).json({
-      message: 'Server Error',
-    });
+    next(error);
   }
 });
 
@@ -131,17 +129,31 @@ app.put('/api/persons/:id', async (req, res, next) => {
       message: 'Updated successfull',
       data: updatedPerson,
     });
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 });
 
 const errorHandling = (error, req, res, next) => {
   const errorName = error.name;
+  console.log(error.errors.name.properties);
+
   console.log(errorName);
 
   if (errorName === 'CastError') {
     return res.status(400).json({
       message: 'invalid id',
     });
+  }
+
+  if (errorName === 'ValidationError') {
+    const path = error.errors.name.properties.path;
+    const message = error.errors.name.properties.message;
+
+    if (path === 'name')
+      return res.status(400).json({
+        message: message,
+      });
   }
 };
 

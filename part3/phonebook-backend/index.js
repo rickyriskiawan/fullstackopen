@@ -27,9 +27,13 @@ app.get('/api/persons', async (req, res, next) => {
 });
 
 app.get('/info', async (req, res, next) => {
-  const date = new Date();
-  const people = await People.find({});
-  res.send(`<p>phonebook has info ${people.length} people </p> <br> ${date}`);
+  try {
+    const date = new Date();
+    const people = await People.find({});
+    res.send(`<p>phonebook has info ${people.length} people </p> <br> ${date}`);
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get('/api/persons/:id', async (req, res, next) => {
@@ -125,6 +129,8 @@ const errorHandling = (error, req, res, next) => {
       message: message,
     });
   }
+
+  next();
 };
 
 app.use(errorHandling);

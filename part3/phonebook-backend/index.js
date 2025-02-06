@@ -4,30 +4,6 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 const PORT = 3001;
-
-let persons = [
-  {
-    id: '1',
-    name: 'Arto Hellas',
-    number: '040-123456',
-  },
-  {
-    id: '2',
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-  },
-  {
-    id: '3',
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-  },
-  {
-    id: '4',
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-  },
-];
-
 const People = require('./models/people');
 
 app.use(cors());
@@ -136,9 +112,6 @@ app.put('/api/persons/:id', async (req, res, next) => {
 
 const errorHandling = (error, req, res, next) => {
   const errorName = error.name;
-  console.log(error.errors.name.properties);
-
-  console.log(errorName);
 
   if (errorName === 'CastError') {
     return res.status(400).json({
@@ -147,13 +120,10 @@ const errorHandling = (error, req, res, next) => {
   }
 
   if (errorName === 'ValidationError') {
-    const path = error.errors.name.properties.path;
-    const message = error.errors.name.properties.message;
-
-    if (path === 'name')
-      return res.status(400).json({
-        message: message,
-      });
+    const message = Object.values(error.errors)[0].message;
+    return res.status(400).json({
+      message: message,
+    });
   }
 };
 

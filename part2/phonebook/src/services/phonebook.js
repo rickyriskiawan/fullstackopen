@@ -1,7 +1,7 @@
 import axios from 'axios';
 // const URL = '/api/persons';
-// const URL = 'http://localhost:3001/api/persons';
-const URL = import.meta.env.VITE_URI;
+const URL = 'http://localhost:3001/api/persons';
+// const URL = import.meta.env.VITE_URI;
 
 async function getAll() {
   try {
@@ -17,7 +17,7 @@ async function create(newObject) {
     const response = await axios.post(URL, newObject);
     return response.data;
   } catch (error) {
-    console.log(error);
+    return error.response;
   }
 }
 

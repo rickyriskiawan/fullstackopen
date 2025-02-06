@@ -4,30 +4,6 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 const PORT = 3001;
-
-let persons = [
-  {
-    id: '1',
-    name: 'Arto Hellas',
-    number: '040-123456',
-  },
-  {
-    id: '2',
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-  },
-  {
-    id: '3',
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-  },
-  {
-    id: '4',
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-  },
-];
-
 const People = require('./models/people');
 
 app.use(cors());
@@ -50,10 +26,10 @@ app.get('/api/persons', async (req, res, next) => {
   }
 });
 
-app.get('/info', (req, res, next) => {
+app.get('/info', async (req, res, next) => {
   const date = new Date();
-  const personsLength = persons.length;
-  res.send(`<p>phonebook has info ${personsLength} people </p> <br> ${date}`);
+  const people = await People.find({});
+  res.send(`<p>phonebook has info ${people.length} people </p> <br> ${date}`);
 });
 
 app.get('/api/persons/:id', async (req, res, next) => {
@@ -115,9 +91,7 @@ app.post('/api/persons', async (req, res, next) => {
       data: person,
     });
   } catch (error) {
-    res.status(500).json({
-      message: 'Server Error',
-    });
+    next(error);
   }
 });
 
@@ -131,16 +105,24 @@ app.put('/api/persons/:id', async (req, res, next) => {
       message: 'Updated successfull',
       data: updatedPerson,
     });
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 });
 
 const errorHandling = (error, req, res, next) => {
   const errorName = error.name;
-  console.log(errorName);
 
   if (errorName === 'CastError') {
     return res.status(400).json({
       message: 'invalid id',
+    });
+  }
+
+  if (errorName === 'ValidationError') {
+    const message = Object.values(error.errors)[0].message;
+    return res.status(400).json({
+      message: message,
     });
   }
 };

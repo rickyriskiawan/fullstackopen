@@ -73,6 +73,21 @@ export default function PersonForm({ persons, setPersons, setNotification }) {
         const response = await phonebookServices.create(formPhoneBook);
         console.log(response);
 
+        if (response.status === 400) {
+          setNotification({
+            message: response.data.message,
+            error: true,
+          });
+
+          setTimeout(() => {
+            setNotification({
+              message: '',
+              error: false,
+            });
+          }, 3000);
+          return;
+        }
+
         setPersons([...persons, response.data]);
         setFormPhonebook({
           name: '',
